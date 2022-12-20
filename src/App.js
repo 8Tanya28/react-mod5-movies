@@ -1,107 +1,114 @@
 import React, { Component } from 'react';
-import s from './App.css';
-import shortid from 'shortid';
 import axios from 'axios';
-import Form from './components/Form';
-import ContactsList from './components/ContactsList';
-import Filter from './components/Filter';
-import { PropTypes } from 'prop-types';
-import { contacts } from './components/ContactsList/contacts.js';
+import { Dna } from 'react-loader-spinner';
 
-const contactId = shortid.generate();
+import Searchbar from './components/Searchbar/Searchbar';
+import ImageGallery from './components/ImageGallery/ImageGallery';
+import Button from './components/Button/Button';
+import Modal from './components/Modal/Modal';
+
+const apiKey = '32097277-d9f34a80dda9c795de3a72a0d';
 
 class App extends Component {
   state = {
-    contacts,
-    filter: '',
+    searchWords: '',
+    images: [],
+    showModal: false,
+    modalImage: '',
+    showLoader: false,
+    currentPage: 1,
   };
 
-  componentDidMount() {
-    const contacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contacts);
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
-    console.log(parsedContacts);
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({ showModal: !showModal }));
+  };
+
+  pushImagesToState = response => {
+    const imagesFromResponse = response.data.hits;
+    let newSearchArray = [];
+    newSearchArray = [...this.state.images, ...imagesFromResponse];
+    this.setState(({ images }) => ({ images: newSearchArray }));
+  };
+  setModalImage = linkImg => {
+    return this.setState(({ modalImage }) => ({ modalImage: linkImg }));
+  };
+  openLargeImage = linkImg => {
+    this.setModalImage(linkImg);
+    this.toggleModal();
+  };
+
+  loaderToggle = bool => {
+    return this.setState(({ showLoader }) => ({ showLoader: bool }));
+  };
+
+  getImages(words, page) {
+    this.loaderToggle(true);
+    axios
+      .get(
+        `https://pixabay.com/api/?q=${words}&page=${page}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=4`
+      )
+      .then(response => {
+        this.pushImagesToState(response);
+        this.loaderToggle(false);
+        this.setState(prevState => ({
+          currentPage: prevState.currentPage + 1,
+        }));
+      });
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      // console.log('update');
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
+  searchFormSubmit = event => {
+    event.preventDefault();
+    this.setState({
+      searchWords: '',
+      images: [],
+      showModal: false,
+      modalImage: '',
+      currentPage: 1,
+    });
+    const searchWordsValue = event.target[1].value;
 
-  onSubmitHendler = data => {
-    const contact = {
-      id: contactId,
-      name: data.name,
-      number: data.number,
-    };
-
-    const contactName = [];
-
-    for (const contact of this.state.contacts) {
-      contactName.push(contact.name);
-    }
-
-    if (contactName.includes(contact.name)) {
-      alert(`${contact.name} is already in contacts list`);
-      return;
-    }
-
-    this.setState(prevState => ({
-      contacts: [...prevState.contacts, contact],
-    }));
+    this.setState({ searchWords: searchWordsValue });
+    const page = 1;
+    this.getImages(searchWordsValue, page);
+    event.target.reset();
   };
 
-  filterName = event => {
-    console.log(event.currentTarget.value);
-    this.setState({ filter: event.currentTarget.value });
-  };
-
-  delete = contactId => {
-    // console.log(contactId);
-
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }));
+  loadMoreFn = () => {
+    this.loaderToggle(true);
+    this.getImages(this.state.searchWords, this.state.currentPage);
   };
 
   render() {
-    const filterNormilized = this.state.filter.toLowerCase().trim();
-    const visibleContacts = this.state.contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filterNormilized)
-    );
-
     return (
-      <>
-        <div className={s.container}>
-          <h1>PHONEBOOK</h1>
-          <Form onSubmitForm={this.onSubmitHendler} />
-          <Filter value={this.state.filter} onChengeFilter={this.filterName} />
-          <ContactsList
-            contacts={visibleContacts}
-            deleteContact={this.delete}
+      <div className="App">
+        {this.state.showModal && (
+          <Modal closeFn={this.toggleModal} loader={this.loaderToggle}>
+            <img src={this.state.modalImage} alt="modal" />
+          </Modal>
+        )}
+        <Searchbar onSubmit={this.searchFormSubmit} />
+
+        {this.state.searchWords !== '' && (
+          <ImageGallery
+            loader={this.loaderToggle}
+            imagesArray={this.state.images}
+            modalFn={this.openLargeImage}
+          ></ImageGallery>
+        )}
+        {this.state.showLoader && (
+          <Dna
+            visible={true}
+            height="80"
+            width="80"
+            ariaLabel="dna-loading"
+            wrapperStyle={{}}
+            wrapperClass="dna-wrapper"
           />
-        </div>
-      </>
+        )}
+        {this.state.searchWords !== '' && <Button fn={this.loadMoreFn} />}
+      </div>
     );
   }
 }
-
-App.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string,
-      number: PropTypes.string,
-    })
-  ),
-  filter: PropTypes.string,
-  onSubmitHendler: PropTypes.func,
-  delete: PropTypes.func,
-  filterName: PropTypes.func,
-};
 
 export default App;
