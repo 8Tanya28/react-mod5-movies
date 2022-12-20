@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/react-mod5-movies/static/css/main.34b165fa.css",
+    "main.js": "/react-mod5-movies/static/js/main.90072ac4.js",
+    "index.html": "/react-mod5-movies/index.html",
+    "main.34b165fa.css.map": "/react-mod5-movies/static/css/main.34b165fa.css.map",
+    "main.90072ac4.js.map": "/react-mod5-movies/static/js/main.90072ac4.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.34b165fa.css",
+    "static/js/main.90072ac4.js"
+  ]
+}
