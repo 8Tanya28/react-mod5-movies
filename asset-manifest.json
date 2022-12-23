@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/react-mod5-movies/static/css/main.330b3f5f.css",
-    "main.js": "/react-mod5-movies/static/js/main.1124ec66.js",
+    "main.css": "/react-mod5-movies/static/css/main.36e90750.css",
+    "main.js": "/react-mod5-movies/static/js/main.976890c8.js",
     "index.html": "/react-mod5-movies/index.html",
-    "main.330b3f5f.css.map": "/react-mod5-movies/static/css/main.330b3f5f.css.map",
-    "main.1124ec66.js.map": "/react-mod5-movies/static/js/main.1124ec66.js.map"
+    "main.36e90750.css.map": "/react-mod5-movies/static/css/main.36e90750.css.map",
+    "main.976890c8.js.map": "/react-mod5-movies/static/js/main.976890c8.js.map"
   },
   "entrypoints": [
-    "static/css/main.330b3f5f.css",
-    "static/js/main.1124ec66.js"
+    "static/css/main.36e90750.css",
+    "static/js/main.976890c8.js"
   ]
 }
